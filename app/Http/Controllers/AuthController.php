@@ -35,38 +35,36 @@ class AuthController extends Controller
     /* ═══════════════════════════════════════
      |  LOGIN
      ═══════════════════════════════════════ */
+public function login(Request $request)
+{
+    $request->validate([
+        'email'    => ['required', 'email'],
+        'password' => ['required'],
+    ], [
+        'email.required'    => 'Email wajib diisi.',
+        'email.email'       => 'Format email tidak valid.',
+        'password.required' => 'Kata sandi wajib diisi.',
+    ]);
 
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email'    => ['required', 'email'],
-            'password' => ['required'],
-            'role'     => ['required', 'in:anggota,petugas,kep_perpustakaan'],
-        ], [
-            'email.required'    => 'Email wajib diisi.',
-            'email.email'       => 'Format email tidak valid.',
-            'password.required' => 'Kata sandi wajib diisi.',
-            'role.required'     => 'Pilih peran terlebih dahulu.',
+    // ✅ Ambil user hanya dari email
+    $user = User::where('email', $request->email)->first();
+
+    // ❌ jika user tidak ada atau password salah
+    if (! $user || ! Hash::check($request->password, $user->password)) {
+        throw ValidationException::withMessages([
+            'email' => 'Email atau password salah.',
         ]);
-
-        $user = User::where('email', $request->email)
-                    ->where('role', $request->role)
-                    ->first();
-
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => 'Email, kata sandi, atau peran tidak sesuai.',
-            ]);
-        }
-
-        Auth::login($user, $request->boolean('remember'));
-        $request->session()->regenerate();
-
-        return redirect()
-            ->intended($this->dashboardRoute($user->role))
-            ->with('success', 'Selamat datang kembali, ' . $user->name . '!');
     }
 
+    // ✅ login user
+    Auth::login($user, $request->boolean('remember'));
+    $request->session()->regenerate();
+
+    // ✅ role otomatis dari database
+    return redirect()
+        ->intended($this->dashboardRoute($user->role))
+        ->with('success', 'Selamat datang kembali, ' . $user->name . '!');
+}
     /* ═══════════════════════════════════════
      |  REGISTER
      ═══════════════════════════════════════ */

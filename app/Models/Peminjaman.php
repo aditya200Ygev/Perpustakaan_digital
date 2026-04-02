@@ -1,38 +1,27 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Peminjaman extends Model
 {
-    protected $table = 'peminjaman';
-    protected $primaryKey = 'id_pinjam';
-    public $incrementing = true;
+    protected $table = 'peminjamans';
     protected $fillable = [
+        'id_pinjam',
+        'user_id',
+        'buku_id',
         'tgl_pinjam',
         'tgl_kembali',
-        'id_user',
-        'id_buku',
+        'status'
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'id_user', 'id_user');
-    }
 
     public function buku()
     {
-        return $this->belongsTo(Buku::class, 'id_buku', 'id_buku');
+        return $this->belongsTo(Buku::class);
     }
 
-    public function pengembalian()
+    public function user()
     {
-        return $this->hasOne(Pengembalian::class, 'id_pinjam', 'id_pinjam');
-    }
-
-    public function laporan()
-    {
-        return $this->hasOne(Laporan::class, 'id_pinjam', 'id_pinjam');
+        return $this->belongsTo(User::class);
     }
 }

@@ -25,10 +25,10 @@
     <div class="lp-illustration">
       <svg viewBox="0 0 240 190"></svg>
 
-      <div class="role-badges">
-        <span class="rbadge rbadge--anggota">👤 Anggota</span>
-        <span class="rbadge rbadge--petugas">🗂️ Petugas</span>
-        <span class="rbadge rbadge--kepala">👔 Kep. Perpustakaan</span>
+      <div class="">
+        <span class=""></span>
+        <span class=""></span>
+        <span class=""></span>
       </div>
     </div>
   </div>

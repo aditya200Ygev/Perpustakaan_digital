@@ -19,12 +19,13 @@ BUKU <br> PERPUSTAKAAN DIGITAL
             </h3>
 
             <p class="text-xs text-gray-500 mt-2 leading-relaxed">
-                Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum
+                Koleksi buku lengkap mulai dari pendidikan, novel, hingga dongeng tersedia di sini.
             </p>
 
-            <button class="mt-4 bg-black text-white text-xs px-5 py-2 rounded-lg hover:bg-gray-800">
+            <a href="#"
+               class="mt-4 inline-block bg-black text-white text-xs px-5 py-2 rounded-lg hover:bg-gray-800">
                 Baca Selengkapnya
-            </button>
+            </a>
         </div>
 
     </div>
@@ -35,13 +36,8 @@ BUKU <br> PERPUSTAKAAN DIGITAL
     <div class="flex justify-center gap-3 text-xs font-medium">
 
         <button class="px-5 py-2 bg-gray-200 rounded-full">PENDIDIKAN</button>
-
-        <button class="px-5 py-2 bg-yellow-400 text-black rounded-full shadow">
-            NOVEL
-        </button>
-
+        <button class="px-5 py-2 bg-yellow-400 text-black rounded-full shadow">NOVEL</button>
         <button class="px-5 py-2 bg-gray-200 rounded-full">DONGENG</button>
-
         <button class="px-5 py-2 bg-gray-200 rounded-full">SEARCH</button>
 
     </div>
@@ -56,37 +52,58 @@ BUKU <br> PERPUSTAKAAN DIGITAL
 
     <div class="grid grid-cols-2 md:grid-cols-5 gap-5">
 
-        @for ($i = 1; $i <= 15; $i++)
+        @forelse($bukus as $buku)
         <div class="bg-[#f4f4f4] p-2 rounded-lg hover:shadow-md hover:scale-105 transition duration-300">
 
-            <img src="/images/buku{{ ($i % 5) + 1 }}.jpg"
+            <!-- COVER -->
+            <img src="{{ $buku->cover ? asset('storage/'.$buku->cover) : '/images/default.jpg' }}"
                  class="w-full h-44 object-cover rounded-md">
 
             <div class="mt-2">
+
+                <!-- JUDUL -->
                 <p class="text-[11px] font-semibold leading-tight">
-                    Judul Buku {{$i}}
-                </p>
-                <p class="text-[10px] text-gray-500">
-                    Penulis Buku
+                    {{ $buku->judul }}
                 </p>
 
-                <button class="mt-3 w-full bg-black text-white text-[10px] py-2 rounded hover:bg-gray-800">
-                    SELENGKAPNYA
-                </button>
+                <!-- PENULIS -->
+                <p class="text-[10px] text-gray-500">
+                    {{ $buku->penulis }}
+                </p>
+
+                <!-- STOK -->
+                <p class="text-[10px] mt-1 {{ $buku->stok > 0 ? 'text-green-600' : 'text-red-500' }}">
+                    {{ $buku->stok > 0 ? 'Tersedia' : 'Stok Habis' }}
+                </p>
+
+                <!-- BUTTON PINJAM -->
+                @auth
+                    <a href="{{ route('pinjam.create', $buku->id) }}"
+                       class="block mt-3 w-full text-center bg-black text-white text-[10px] py-2 rounded hover:bg-gray-800">
+                        PINJAM
+                    </a>
+                @else
+                    <a href="{{ route('login') }}"
+                       class="block mt-3 w-full text-center bg-black text-white text-[10px] py-2 rounded hover:bg-gray-800">
+                        PINJAM
+                    </a>
+                @endauth
+
             </div>
 
         </div>
-        @endfor
+
+        @empty
+        <div class="col-span-5 text-center text-gray-500 py-10">
+            📚 Belum ada data buku
+        </div>
+        @endforelse
 
     </div>
 
     <!-- PAGINATION -->
-    <div class="flex justify-center mt-10 gap-2 text-xs">
-
-        <button class="w-7 h-7 bg-gray-300 rounded">1</button>
-        <button class="w-7 h-7 bg-black text-white rounded">2</button>
-        <button class="w-7 h-7 bg-gray-300 rounded">3</button>
-
+    <div class="flex justify-center mt-10 text-xs">
+        {{ $bukus->links() }}
     </div>
 
 </div>

@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // ── Kepala Perpustakaan ───────────────────────
-        User::create([
+        User::create([\\
             'name'    => 'Dr. Ahmad Fauzi',
             'email'   => 'kepala@demo.com',
             'password'=> Hash::make('password123'),

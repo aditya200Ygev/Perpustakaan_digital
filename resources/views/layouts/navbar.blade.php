@@ -1,6 +1,6 @@
 <div class="bg-white px-6 md:px-16 py-3 flex justify-between items-center shadow-md sticky top-0 z-50">
 
-    
+
     <div class="font-bold text-sm bg-blue-600 text-white px-4 py-1.5 rounded-lg shadow">
         SMK N 3 BANJAR
     </div>
@@ -16,7 +16,7 @@
             About
         </a>
 
-        <a href="/book" class="text-gray-700 hover:text-blue-600 transition duration-200">
+        <a href="{{ route('buku.public') }}" class="text-gray-700 hover:text-blue-600 transition duration-200">
             Book
         </a>
 
