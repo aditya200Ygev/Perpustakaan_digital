@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Detail Buku')
+@section('title', 'Konfirmasi Peminjaman')
 
 @section('content')
 
@@ -8,24 +8,46 @@
 
     <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow">
 
-        <h2 class="text-xl font-bold mb-4">{{ $buku->judul }}</h2>
+        <h2 class="text-lg font-bold mb-6">📄 Detail Peminjaman</h2>
 
-        <p><b>Penulis:</b> {{ $buku->penulis }}</p>
-        <p><b>Penerbit:</b> {{ $buku->penerbit }}</p>
-        <p><b>Tahun:</b> {{ $buku->tahun_terbit }}</p>
-        <p>
-            <b>Stok:</b>
-            {{ $buku->stok > 0 ? $buku->stok : 'Habis' }}
-        </p>
+        {{-- DATA --}}
+        <div class="space-y-3">
 
-        <p class="mt-2"><b>Deskripsi:</b> {{ $buku->deskripsi }}</p>
-
-        {{-- SUCCESS --}}
-        @if(session('success'))
-            <div class="mt-4 p-3 bg-green-100 text-green-700 rounded">
-                {{ session('success') }}
+            <div>
+                <p class="text-sm text-gray-500">Nama Anggota</p>
+                <p class="font-semibold">{{ auth()->user()->name }}</p>
             </div>
-        @endif
+
+            <div>
+                <p class="text-sm text-gray-500">Judul Buku</p>
+                <p class="font-semibold">{{ $buku->judul }}</p>
+            </div>
+
+            <div>
+                <p class="text-sm text-gray-500">Kategori</p>
+                <p class="font-semibold">
+                    {{ $buku->kategori->nama ?? '-' }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-sm text-gray-500">Tanggal Pinjam</p>
+                <p class="font-semibold">{{ now()->format('d-m-Y') }}</p>
+            </div>
+
+            <div>
+                <p class="text-sm text-gray-500">Tanggal Kembali</p>
+                <p class="font-semibold">{{ now()->addDays(3)->format('d-m-Y') }}</p>
+            </div>
+
+            <div>
+                <p class="text-sm text-gray-500">Stok Tersedia</p>
+                <p class="font-semibold">
+                    {{ $buku->stok > 0 ? $buku->stok : 'Habis' }}
+                </p>
+            </div>
+
+        </div>
 
         {{-- ERROR --}}
         @if(session('error'))
@@ -34,18 +56,32 @@
             </div>
         @endif
 
-        {{-- FORM PINJAM --}}
+        {{-- FORM --}}
         <form id="pinjamForm" action="{{ route('pinjam.store') }}" method="POST" class="mt-6">
             @csrf
 
             <input type="hidden" name="buku_id" value="{{ $buku->id }}">
 
+            {{-- JUMLAH --}}
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">
+                    Jumlah Pinjam
+                </label>
+
+                <select name="jumlah" class="w-full border rounded p-2" required>
+                    @for($i = 1; $i <= min(36, $buku->stok); $i++)
+                        <option value="{{ $i }}">{{ $i }}</option>
+                    @endfor
+                </select>
+            </div>
+
             <button type="button"
                 onclick="confirmPinjam()"
-                class="bg-green-700 text-white px-5 py-2 rounded-lg hover:bg-green-800"
-                @if($buku->stok < 1) disabled class="opacity-50 cursor-not-allowed" @endif>
+                @disabled($buku->stok < 1)
+                class="px-5 py-2 rounded-lg text-white
+                {{ $buku->stok > 0 ? 'bg-green-700 hover:bg-green-800' : 'bg-gray-400 cursor-not-allowed' }}">
 
-                🟢 PINJAM
+                🟢 Konfirmasi Pinjam
             </button>
 
         </form>
@@ -54,7 +90,6 @@
 
 </div>
 
-{{-- POPUP KONFIRMASI --}}
 <script>
 function confirmPinjam() {
     if (confirm('Yakin ingin meminjam buku ini?')) {
@@ -64,4 +99,3 @@ function confirmPinjam() {
 </script>
 
 @endsection
-

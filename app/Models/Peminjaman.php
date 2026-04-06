@@ -11,6 +11,7 @@ class Peminjaman extends Model
         'user_id',
         'buku_id',
         'tgl_pinjam',
+        'jumlah',
         'tgl_kembali',
         'status'
     ];

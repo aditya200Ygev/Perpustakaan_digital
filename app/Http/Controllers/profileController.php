@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Anggota;
 
 class ProfileController extends Controller
 {
@@ -18,7 +19,7 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-       
+        // VALIDASI
         $request->validate([
             'name' => 'required',
             'email' => 'required|email',
@@ -26,30 +27,26 @@ class ProfileController extends Controller
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
+        // DATA USER
         $data = [
             'name' => $request->name,
             'email' => $request->email,
             'no_telp' => $request->no_telp,
         ];
 
+        // FOTO
+      if ($request->hasFile('photo')) {
 
-        if ($request->hasFile('photo')) {
+    if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+        Storage::disk('public')->delete($user->photo);
+    }
 
-            // hapus foto lama
-            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
-                Storage::disk('public')->delete($user->photo);
-            }
-
-
-            $path = $request->file('photo')->store('photos', 'public');
-
-            $data['photo'] = $path;
-        }
-
+    $user->photo = $request->file('photo')->store('photos', 'public');
+}
 
         $user->update($data);
 
-        // update anggota
+        // UPDATE ANGGOTA
         if ($user->anggota) {
             $user->anggota->update([
                 'nis' => $request->nis,

@@ -11,7 +11,47 @@
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-xl font-bold">Data Peminjaman</h1>
         </div>
+<!-- 🔍 SEARCH + FILTER -->
+<form method="GET" class="mb-4 flex flex-wrap gap-3 items-end">
 
+    <!-- SEARCH -->
+    <div>
+        <label class="text-sm">Cari</label>
+        <input type="text" name="search"
+               value="{{ request('search') }}"
+               placeholder="Nama / Buku..."
+               class="border p-2 rounded w-48">
+    </div>
+
+    <!-- TANGGAL DARI -->
+    <div>
+        <label class="text-sm">Dari</label>
+        <input type="date" name="from"
+               value="{{ request('from') }}"
+               class="border p-2 rounded">
+    </div>
+
+    <!-- TANGGAL SAMPAI -->
+    <div>
+        <label class="text-sm">Sampai</label>
+        <input type="date" name="to"
+               value="{{ request('to') }}"
+               class="border p-2 rounded">
+    </div>
+
+    <!-- BUTTON -->
+    <div class="flex gap-2">
+        <button class="bg-blue-500 text-white px-4 py-2 rounded">
+            🔍 Cari
+        </button>
+
+        <a href="{{ route('petugas.peminjaman.index') }}"
+           class="bg-gray-400 text-white px-4 py-2 rounded">
+            Reset
+        </a>
+    </div>
+
+</form>
         <!-- TABLE -->
         <div class="bg-white rounded-xl shadow overflow-hidden">
 
@@ -65,43 +105,66 @@
                             {{ $item->tgl_kembali }}
                         </td>
 
-                        <!-- STATUS -->
-                        <td class="p-3">
-                            @if($item->status == 'diajukan')
-                                <span class="px-2 py-1 bg-yellow-200 text-yellow-800 rounded text-xs">
-                                    Diajukan
-                                </span>
-                            @elseif($item->status == 'dipinjam')
-                                <span class="px-2 py-1 bg-blue-200 text-blue-800 rounded text-xs">
-                                    Dipinjam
-                                </span>
-                            @elseif($item->status == 'dikembalikan')
-                                <span class="px-2 py-1 bg-green-200 text-green-800 rounded text-xs">
-                                    Dikembalikan
-                                </span>
-                            @elseif($item->status == 'denda')
-                                <span class="px-2 py-1 bg-red-200 text-red-800 rounded text-xs">
-                                    Denda
-                                </span>
-                            @endif
-                        </td>
+                     <td class="p-3">
 
+    @if($item->status == 'diajukan')
+        <span class="px-2 py-1 bg-yellow-200 text-yellow-800 rounded text-xs">
+            Diajukan
+        </span>
+
+    @elseif($item->status == 'dipinjam')
+        <span class="px-2 py-1 bg-blue-200 text-blue-800 rounded text-xs">
+            Dipinjam
+        </span>
+
+    @elseif($item->status == 'denda')
+        <span class="px-2 py-1 bg-red-500 text-white rounded text-xs">
+            Denda (Terlambat)
+        </span>
+
+    @elseif($item->status == 'dikembalikan')
+        <span class="px-2 py-1 bg-green-200 text-green-800 rounded text-xs">
+            Dikembalikan
+        </span>
+
+    @elseif($item->status == 'ditolak')
+        <span class="px-2 py-1 bg-gray-300 text-gray-800 rounded text-xs">
+            Ditolak
+        </span>
+
+    @endif
+
+</td>
                         <!-- AKSI -->
                         <td class="p-3 flex gap-2">
 
-                            <!-- SETUJUI -->
+                            {{-- SETUJUI & TOLAK --}}
                             @if($item->status == 'diajukan')
-                            <form action="{{ route('pinjam.approve', $item->id) }}" method="POST">
+
+                            <!-- SETUJUI -->
+                            <form action="{{ route('pinjam.approve', $item->id) }}" method="POST"
+                                  onsubmit="return confirm('Setujui peminjaman ini?')">
                                 @csrf
                                 <button class="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
                                     Setujui
                                 </button>
                             </form>
+
+                            <!-- TOLAK -->
+                            <form action="{{ route('pinjam.tolak', $item->id) }}" method="POST"
+                                  onsubmit="return confirm('Yakin ingin menolak peminjaman ini?')">
+                                @csrf
+                                <button class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600">
+                                    Tolak
+                                </button>
+                            </form>
+
                             @endif
 
-                            <!-- KEMBALIKAN -->
+                            {{-- KEMBALIKAN --}}
                             @if($item->status == 'dipinjam')
-                            <form action="{{ route('pinjam.kembali', $item->id) }}" method="POST">
+                            <form action="{{ route('pinjam.kembali', $item->id) }}" method="POST"
+                                  onsubmit="return confirm('Konfirmasi pengembalian buku?')">
                                 @csrf
                                 <button class="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600">
                                     Kembalikan

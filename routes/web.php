@@ -133,3 +133,5 @@ Route::post('/pinjam/{id}/approve', [PeminjamanController::class, 'approve'])
 // kembalikan buku
 Route::post('/pinjam/{id}/kembali', [PeminjamanController::class, 'kembalikan'])
     ->name('pinjam.kembali');
+Route::post('/pinjam/{id}/tolak', [PeminjamanController::class, 'tolak'])
+    ->name('pinjam.tolak');
