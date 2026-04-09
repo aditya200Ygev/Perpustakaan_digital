@@ -13,7 +13,9 @@ class Peminjaman extends Model
         'tgl_pinjam',
         'jumlah',
         'tgl_kembali',
-        'status'
+        'status',
+    'denda',
+    'is_paid'
     ];
 
     public function buku()
@@ -24,5 +26,10 @@ class Peminjaman extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function keuangan()
+    {
+        // Parameter kedua adalah foreign key di tabel keuangans (misal: peminjaman_id)
+        return $this->hasOne(Keuangan::class, 'peminjaman_id');
     }
 }

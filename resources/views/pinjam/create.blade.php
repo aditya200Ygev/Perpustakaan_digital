@@ -1,104 +1,133 @@
 @extends('layouts.app')
 
-@section('title', 'Detail Buku')
+@section('title', 'Detail Buku - ' . $buku->judul)
 
 @section('content')
 
-<div class="p-6 bg-gray-100 min-h-screen">
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6">
+    <div class="max-w-5xl mx-auto">
 
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow">
+        {{-- Back Button --}}
+        <a href="javascript:history.back()" class="inline-flex items-center gap-2 text-xs font-black text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-widest mb-8">
+            <span>←</span> Kembali ke Koleksi
+        </a>
 
-        <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 overflow-hidden border border-gray-100">
+            <div class="grid lg:grid-cols-12 gap-0">
 
-            {{-- COVER --}}
-            <div class="flex justify-center">
-                <img src="{{ $buku->cover ? Storage::url($buku->cover) : '/img/book.png' }}"
-                     class="w-48 h-64 object-cover rounded-lg shadow">
-            </div>
+                {{-- KIRI: Visual Buku --}}
+                <div class="lg:col-span-5 bg-gray-50 p-8 md:p-12 flex flex-col items-center justify-center border-r border-gray-50">
+                    <div class="relative group">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+                        <img src="{{ $buku->cover ? Storage::url($buku->cover) : '/img/book.png' }}"
+                             class="relative w-64 md:w-72 aspect-[3/4.5] object-cover rounded-xl shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02]">
+                    </div>
 
-            {{-- DETAIL --}}
-            <div class="md:col-span-2">
-
-                <h2 class="text-2xl font-bold mb-4">{{ $buku->judul }}</h2>
-
-                <div class="space-y-2 text-sm">
-                    <p><b>Penulis:</b> {{ $buku->penulis }}</p>
-                    <p><b>Penerbit:</b> {{ $buku->penerbit }}</p>
-                    <p><b>Tahun:</b> {{ $buku->tahun_terbit }}</p>
-
-                    <p>
-                        <b>Stok:</b>
+                    <div class="mt-8 flex gap-3">
                         @if($buku->stok > 0)
-                            <span class="text-green-600 font-semibold">{{ $buku->stok }}</span>
+                            <span class="px-4 py-1.5 bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-widest rounded-full">Tersedia: {{ $buku->stok }} Unit</span>
                         @else
-                            <span class="text-red-600 font-semibold">Habis</span>
+                            <span class="px-4 py-1.5 bg-red-100 text-red-700 text-[10px] font-black uppercase tracking-widest rounded-full">Stok Habis</span>
                         @endif
-                    </p>
+                        <span class="px-4 py-1.5 bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-widest rounded-full">ID: #{{ str_pad($buku->id, 4, '0', STR_PAD_LEFT) }}</span>
+                    </div>
                 </div>
 
-                <p class="mt-4 text-sm text-gray-700">
-                    <b>Deskripsi:</b><br>
-                    {{ $buku->deskripsi }}
-                </p>
-
-                {{-- SUCCESS --}}
-                @if(session('success'))
-                    <div class="mt-4 p-3 bg-green-100 text-green-700 rounded">
-                        {{ session('success') }}
-                    </div>
-                @endif
-
-                {{-- ERROR (DITOLAK / GAGAL) --}}
-                @if(session('error'))
-                    <div class="mt-4 p-3 bg-red-100 text-red-700 rounded">
-                        {{ session('error') }}
-                    </div>
-                @endif
-
-                {{-- FORM PINJAM --}}
-                <form id="pinjamForm" action="{{ route('pinjam.store') }}" method="POST" class="mt-6">
-                    @csrf
-
-                    <input type="hidden" name="buku_id" value="{{ $buku->id }}">
-
-                    {{-- JUMLAH --}}
-                    <div class="mb-4">
-                        <label class="block mb-1 font-semibold text-sm">Jumlah Pinjam</label>
-
-                        <select name="jumlah"
-                                class="w-full border rounded-lg px-3 py-2"
-                                required>
-
-                            @for($i = 1; $i <= min(36, $buku->stok); $i++)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
-
-                        </select>
+                {{-- KANAN: Informasi & Form --}}
+                <div class="lg:col-span-7 p-8 md:p-12">
+                    <div class="mb-8">
+                        <h1 class="text-3xl md:text-4xl font-black text-gray-900 leading-tight mb-4 tracking-tighter uppercase">{{ $buku->judul }}</h1>
+                        <div class="flex flex-wrap gap-y-2 gap-x-6 text-sm">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Penulis</span>
+                                <span class="font-bold text-gray-800">{{ $buku->penulis }}</span>
+                            </div>
+                            <div class="flex flex-col border-l border-gray-200 pl-6">
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Penerbit</span>
+                                <span class="font-bold text-gray-800">{{ $buku->penerbit }}</span>
+                            </div>
+                            <div class="flex flex-col border-l border-gray-200 pl-6">
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tahun</span>
+                                <span class="font-bold text-gray-800">{{ $buku->tahun_terbit }}</span>
+                            </div>
+                        </div>
                     </div>
 
-                    {{-- BUTTON --}}
-                    <button type="button"
-                        onclick="confirmPinjam()"
-                        class="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 transition"
-                        @if($buku->stok < 1) disabled @endif>
+                    <div class="mb-10">
+                        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Sinopsis / Deskripsi</h3>
+                        <p class="text-gray-600 leading-relaxed text-sm italic">
+                            "{{ $buku->deskripsi }}"
+                        </p>
+                    </div>
 
-                        🟢 PINJAM
-                    </button>
+                    <hr class="border-gray-100 mb-10">
 
-                </form>
+                    {{-- Feedback Messages --}}
+                    @if(session('success'))
+                        <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-800 text-xs font-bold uppercase tracking-wide rounded-r-xl animate-pulse">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 text-xs font-bold uppercase tracking-wide rounded-r-xl">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    {{-- Form Pinjam --}}
+                    <form id="pinjamForm" action="{{ route('pinjam.store') }}" method="POST" class="space-y-6">
+                        @csrf
+                        <input type="hidden" name="buku_id" value="{{ $buku->id }}">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {{-- TANGGAL --}}
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Tanggal Pinjam</label>
+                                <input type="date" name="tgl_pinjam" required
+                                       value="{{ date('Y-m-d') }}"
+                                       class="w-full bg-gray-50 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none border transition-all text-sm font-bold text-gray-700">
+                            </div>
+
+                            {{-- JUMLAH --}}
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Jumlah Pinjam</label>
+                                <select name="jumlah" required
+                                        class="w-full bg-gray-50 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none border transition-all text-sm font-bold text-gray-700">
+                                    @for($i = 1; $i <= min(36, $buku->stok); $i++)
+                                        <option value="{{ $i }}">{{ $i }} Buku</option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
+
+                        {{-- ACTION BUTTON --}}
+                        <div class="pt-4">
+                            @if($buku->stok > 0)
+                                <button type="button" onclick="confirmPinjam()"
+                                        class="w-full md:w-auto px-12 py-4 bg-gray-900 text-white rounded-full text-xs font-black uppercase tracking-[0.2em] hover:bg-blue-600 transition-all duration-300 shadow-xl shadow-gray-200 hover:shadow-blue-200">
+                                    Konfirmasi Peminjaman <span>→</span>
+                                </button>
+                            @else
+                                <button type="button" disabled
+                                        class="w-full md:w-auto px-12 py-4 bg-gray-200 text-gray-400 rounded-full text-xs font-black uppercase tracking-[0.2em] cursor-not-allowed">
+                                    Maaf, Stok Sedang Kosong
+                                </button>
+                            @endif
+                        </div>
+                    </form>
+                </div>
 
             </div>
-
         </div>
-
     </div>
-
 </div>
 
-{{-- POPUP --}}
+{{-- MODAL / POPUP KONFIRMASI (Sederhana tapi Cantik) --}}
 <script>
 function confirmPinjam() {
-    if (confirm('Yakin ingin meminjam buku ini?')) {
+    const swal = confirm('Apakah Anda yakin data peminjaman sudah benar? Buku ini wajib dijaga dengan baik.');
+    if (swal) {
         document.getElementById('pinjamForm').submit();
     }
 }

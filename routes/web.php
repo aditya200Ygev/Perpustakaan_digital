@@ -8,7 +8,7 @@ use App\Http\Controllers\Dashboard\AnggotaController;
 use App\Http\Controllers\Dashboard\BukuController;
 use App\Http\Controllers\BukuPublicController;
  use App\Http\Controllers\PeminjamanController;
-
+use App\Http\Controllers\HomeController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC
@@ -99,13 +99,6 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/profile/edit', [ProfileController::class, 'edit'])
-    ->middleware('auth')
-    ->name('profile.edit');
-
-Route::post('/profile/update', [ProfileController::class, 'update'])
-    ->middleware('auth')
-    ->name('profile.update');
 
 
 Route::middleware('auth')->group(function () {
@@ -135,3 +128,76 @@ Route::post('/pinjam/{id}/kembali', [PeminjamanController::class, 'kembalikan'])
     ->name('pinjam.kembali');
 Route::post('/pinjam/{id}/tolak', [PeminjamanController::class, 'tolak'])
     ->name('pinjam.tolak');
+
+    Route::get('/anggota/pengembalian', [DashboardController::class, 'pengembalian'])
+    ->name('anggota.pengembalian');
+
+Route::post('/pinjam/ajukan-kembali/{id}', [PeminjamanController::class, 'ajukanKembali'])
+    ->name('pinjam.ajukan.kembali');
+Route::post('/pinjam/acc-kembali/{id}', [PeminjamanController::class, 'accKembali'])
+    ->name('pinjam.acc.kembali');
+Route::get('/anggota/denda', [DashboardController::class, 'denda'])
+    ->name('anggota.denda');
+
+Route::prefix('dashboard/petugas')->middleware('role:petugas')->group(function () {
+
+        Route::get('/anggota', [AnggotaController::class, 'index'])->name('petugas.anggota');
+
+        Route::get('/buku', [BukuController::class, 'index'])->name('petugas.buku');
+
+        // 🔥 PINDAH KE SINI
+        Route::get('/denda', [PeminjamanController::class, 'dataDenda'])
+            ->name('petugas.denda.index');
+
+        Route::post('/denda/acc/{id}', [PeminjamanController::class, 'accDenda'])
+            ->name('petugas.acc.denda');
+
+    });
+Route::post('/pinjam/bayar-denda/{id}', [PeminjamanController::class, 'bayarDenda'])
+    ->name('pinjam.bayar.denda');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/profile', [AnggotaController::class, 'updateProfile'])->name('profile.update');
+     Route::get('/profile/edit', [AnggotaController::class, 'editProfile'])->name('profile.edit');
+});
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/profile/petugas/edit', [AnggotaController::class, 'editPetugas'])
+    ->name('profile.petugas.edit');
+
+Route::post('/profile/petugas/update', [AnggotaController::class, 'updatePetugas'])
+    ->name('profile.petugas.update');
+});
+Route::get('/dashboard/keuangan', [PeminjamanController::class, 'keuangan'])->name('keuangan');
+
+
+
+// Ubah route '/' Anda menjadi seperti ini:
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/peminjaman/bukti/{id}', [PeminjamanController::class, 'cetakBukti'])->name('peminjaman.bukti');
+
+Route::get('/dashboard/petugas/laporan', [PeminjamanController::class, 'laporan'])->name('petugas.laporan');
+
+
+// Grouping untuk Kepala Perpustakaan
+Route::middleware(['auth', 'role:kep_perpustakaan'])->prefix('kep_perpustakaan')->group(function () {
+
+    // Halaman Dashboard Utama
+    // Pastikan memanggil method 'dashboardKepala' sesuai isi Controller Anda
+    Route::get('/dashboard', [DashboardController::class, 'dashboardKepala'])->name('dashboard.kepala');
+
+    // Halaman Monitoring Buku
+    // Kita arahkan ke method 'bukuKepala' (Anda perlu pastikan method ini ada di Controller)
+    Route::get('/buku', [DashboardController::class, 'bukuKepala'])->name('kepala.buku.index');
+
+    // Halaman SDM (Anggota & Petugas)
+    Route::get('/data-sdm', [DashboardController::class, 'dataSdmKepala'])->name('kepala.sdm');
+
+    // Halaman Laporan Denda / Keuangan
+    Route::get('/laporan-denda', [DashboardController::class, 'laporanDendaKepala'])->name('kepala.denda');
+
+    // Halaman Laporan Umum (dengan filter)
+    Route::get('/laporan-umum', [DashboardController::class, 'laporanKepala'])->name('kepala.laporan');
+});

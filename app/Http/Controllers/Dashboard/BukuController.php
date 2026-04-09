@@ -10,13 +10,33 @@ use Illuminate\Support\Facades\Storage;
 
 class BukuController extends Controller
 {
-    public function index()
-    {
-        // ✅ FIX: gunakan paginate, bukan get()
-        $bukus = Buku::with('kategori')->latest()->paginate(10);
+   public function index(Request $request) // Tambahkan Request $request
+{
+    // 1. Ambil semua kategori untuk dropdown filter
+    $kategoris = Kategori::all();
 
-        return view('dashboard.petugas.buku.index', compact('bukus'));
+    // 2. Mulai Query Buku
+    $query = Buku::with('kategori');
+
+    // 3. Logika Filter Kategori (Jika dipilih)
+    if ($request->has('kategori_id') && $request->kategori_id != '') {
+        $query->where('kategori_id', $request->kategori_id);
     }
+
+    // 4. Logika Pencarian (Jika mengetik di kolom cari)
+    if ($request->has('search') && $request->search != '') {
+        $query->where(function($q) use ($request) {
+            $q->where('judul', 'like', '%' . $request->search . '%')
+              ->orWhere('penulis', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    // 5. Eksekusi dengan Paginate dan kirim SEMUA variabel
+    $bukus = $query->latest()->paginate(10);
+
+    // ✅ Tambahkan 'kategoris' di dalam compact()
+    return view('dashboard.petugas.buku.index', compact('bukus', 'kategoris'));
+}
 
     public function create()
     {

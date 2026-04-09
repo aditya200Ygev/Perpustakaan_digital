@@ -42,4 +42,11 @@ class User extends Authenticatable
             default            => ucfirst($this->role),
         };
     }
+    // app/Models/User.php
+
+public function peminjaman()
+{
+    // Pastikan nama modelnya 'Peminjaman' sesuai dengan nama file model Anda
+    return $this->hasMany(Peminjaman::class, 'user_id');
+}
 }

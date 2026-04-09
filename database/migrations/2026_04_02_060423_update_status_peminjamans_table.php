@@ -16,6 +16,7 @@ return new class extends Migration
         'diajukan',
         'dipinjam',
         'dikembalikan',
+        'selesai',
         'denda',
         'ditolak'
     ])->default('diajukan')->change();
