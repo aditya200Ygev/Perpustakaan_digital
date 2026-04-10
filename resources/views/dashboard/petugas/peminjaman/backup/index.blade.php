@@ -119,35 +119,15 @@
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         @forelse($peminjaman as $item)
-@php
-    // 🔥 HITUNG INFO DENDA & TANGGAL SELESAI (untuk display)
-    $tglKembali = \Carbon\Carbon::parse($item->tgl_kembali);
-    $tglAkhir = null;
-    $hariTelat = 0;
-    $totalDenda = 0;
-
-    // 🔥 TENTUKAN $tglAkhir BERDASARKAN STATUS
-    if (in_array($item->status, ['selesai', 'dikembalikan', 'pengembalian_diajukan'])) {
-        // ✅ Sudah selesai / dikembalikan / menunggu ACC: pakai updated_at
-        $tglAkhir = \Carbon\Carbon::parse($item->updated_at);
-    }
-    elseif ($item->status == 'denda') {
-        // ⚠️ Denda aktif: pakai tgl_kembali sebagai patokan display
-        $tglAkhir = $tglKembali;
-    }
-    // ❌ Untuk status lain (diajukan, dipinjam, ditolak): $tglAkhir tetap null
-
-    // 🔥 HITUNG HARI TELAT & DENDA
-    if ($tglAkhir && $tglAkhir->gt($tglKembali)) {
-        $hariTelat = $tglAkhir->diffInDays($tglKembali);
-        $totalDenda = $hariTelat * 5000;
-    }
-
-    // 🔥 CEK DENDA REAL DARI TABEL KEUANGAN (jika ada)
-    if ($item->keuangan && $item->keuangan->total_denda > 0) {
-        $totalDenda = $item->keuangan->total_denda;
-    }
-@endphp
+                        @php
+                            // 🔥 HITUNG INFO DENDA (untuk display)
+                            $tglKembali = \Carbon\Carbon::parse($item->tgl_kembali);
+                            $tglAkhir = in_array($item->status, ['selesai', 'dikembalikan', 'pengembalian_diajukan'])
+                                ? \Carbon\Carbon::parse($item->updated_at)
+                                : \Carbon\Carbon::now();
+                            $hariTelat = max(0, $tglAkhir->diffInDays($tglKembali));
+                            $totalDenda = $hariTelat * 5000;
+                        @endphp
                         <tr class="hover:bg-blue-50/30 transition-colors">
 
                             {{-- 👤 FOTO & DATA USER --}}
@@ -246,27 +226,27 @@
                                         @break
 
                                     {{-- ✅ DENDA: Tampilkan info lunas + nominal SELALU muncul --}}
-                          @case('denda')
-    <div class="inline-flex flex-col items-center gap-1">
-        @if($item->is_paid)
-            {{-- ✅ DENDA HISTORIS (sudah lunas) --}}
-            <span class="px-3 py-1 bg-green-100 text-green-700 text-[9px] font-black uppercase rounded-full border border-green-200">
-                ✅ Denda Lunas
-            </span>
-            <span class="text-[8px] font-bold text-gray-600">
-                Rp {{ number_format($totalDenda, 0, ',', '.') }}
-            </span>
-        @else
-            {{-- ❌ DENDA AKTIF (belum lunas) --}}
-            <span class="px-3 py-1 bg-red-500 text-white text-[9px] font-black uppercase rounded-full">
-                ⚠️ Denda
-            </span>
-            <span class="text-[8px] font-bold text-red-400">
-                Rp {{ number_format($totalDenda, 0, ',', '.') }} • Belum Bayar
-            </span>
-        @endif
-    </div>
-    @break
+                                    @case('denda')
+                                        <div class="inline-flex flex-col items-center gap-1">
+                                            <span class="px-3 py-1 bg-red-500 text-white text-[9px] font-black uppercase rounded-full">
+                                                ⚠️ Denda
+                                            </span>
+                                            {{-- ✅ NOMINAL DENDA SELALU MUNCUL (menggunakan $totalDenda = $hariTelat * 5000) --}}
+                                            <span class="text-[8px] font-bold text-gray-700">
+                                                Rp {{ number_format($totalDenda, 0, ',', '.') }}
+                                            </span>
+                                            {{-- Badge status pembayaran --}}
+                                            @if($item->is_paid)
+                                                <span class="text-[8px] font-black text-green-600 bg-green-50 px-2 py-0.5 rounded">
+                                                    ✅ Lunas
+                                                </span>
+                                            @else
+                                                <span class="text-[8px] font-black text-red-400">
+                                                    ❌ Belum Bayar
+                                                </span>
+                                            @endif
+                                        </div>
+                                        @break
 
                                     {{-- ✅ SELESAI: SELALU tampilkan info denda jika pernah telat (FIXED) --}}
                                     @case('selesai')

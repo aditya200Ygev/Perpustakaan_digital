@@ -3,7 +3,6 @@
 @section('title', 'Data Denda')
 
 @section('content')
-
 <div class="p-6 bg-gray-50 min-h-screen font-sans">
     <div class="max-w-7xl mx-auto">
 
@@ -51,16 +50,17 @@
                         <tr class="hover:bg-gray-50/80 transition-colors">
                             <td class="px-6 py-4 text-sm text-gray-500 font-medium">{{ $i+1 }}</td>
 
-                            {{-- KOLOM ANGGOTA DENGAN GAMBAR PROFIL --}}
+                            {{-- 👤 KOLOM ANGGOTA --}}
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-gray-100 shadow-sm">
                                         @if($item->user->photo)
                                             <img src="{{ asset('storage/' . $item->user->photo) }}"
-                                                 class="w-full h-full object-cover">
+                                                 class="w-full h-full object-cover"
+                                                 alt="{{ $item->user->name }}">
                                         @else
                                             <div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-sm">
-                                                {{ strtoupper(substr($item->user->name, 0, 1)) }}
+                                                {{ strtoupper(substr($item->user->name ?? 'U', 0, 1)) }}
                                             </div>
                                         @endif
                                     </div>
@@ -71,39 +71,60 @@
                                 </div>
                             </td>
 
+                            {{-- 📚 KOLOM BUKU --}}
                             <td class="px-6 py-4">
                                 <p class="text-sm font-semibold text-gray-700 truncate max-w-xs">{{ $item->buku->judul }}</p>
                                 <p class="text-xs text-gray-400 font-mono">ID: #{{ $item->buku_id }}</p>
                             </td>
+
+                            {{-- 📅 KOLOM TANGGAL --}}
                             <td class="px-6 py-4 text-sm text-gray-600">
                                 <div class="flex flex-col">
                                     <span class="font-medium">{{ \Carbon\Carbon::parse($item->tgl_kembali)->translatedFormat('d M Y') }}</span>
                                     <span class="text-[10px] text-red-500 font-bold uppercase italic">
-                                        Terlambat {{ \Carbon\Carbon::parse($item->tgl_kembali)->diffInDays(\Carbon\Carbon::now()) }} Hari
+                                        Terlambat {{ max(0, \Carbon\Carbon::parse($item->tgl_kembali)->diffInDays(\Carbon\Carbon::now())) }} Hari
                                     </span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-center">
-                                @if(!$item->is_paid)
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-100">
-                                        <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                        Menunggu ACC
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-600 border border-green-100">
-                                        <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-green-500"></span>
-                                        Lunas
-                                    </span>
-                                @endif
-                            </td>
+{{-- KOLOM STATUS --}}
+<td class="px-6 py-4 text-center">
+    @if(!$item->is_paid)
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gray-50 text-gray-600 border border-gray-200">
+            ⏳ Menunggu Pembayaran
+        </span>
+    @elseif($item->is_paid && $item->status == 'denda')
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-100">
+            <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+            Menunggu ACC
+        </span>
+    @elseif($item->is_paid && $item->status == 'selesai')
+        {{-- ✅ DENDA LUNAS YANG SUDAH DIPROSES --}}
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-600 border border-green-100">
+            <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-green-500"></span>
+            ✅ Lunas
+        </span>
+    @else
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500">
+            -
+        </span>
+    @endif
+</td>
+
+                            {{-- ⚙️ KOLOM AKSI (FIXED) --}}
                             <td class="px-6 py-4 text-right">
-                                @if(!$item->is_paid)
-                                    <form action="{{ route('petugas.acc.denda', $item->id) }}" method="POST" class="inline-block form-confirm">
+                                {{-- ✅ TOMBOL KONFIRMASI: Hanya muncul jika anggota SUDAH klik "Ajukan Bayar" --}}
+                                @if($item->is_paid && $item->status == 'denda')
+                                    <form action="{{ route('petugas.acc.denda', $item->id) }}"
+                                          method="POST"
+                                          class="inline-block form-confirm">
                                         @csrf
-                                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-green-100 active:scale-95">
-                                            Konfirmasi
+                                        <button type="submit"
+                                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-green-100 active:scale-95">
+                                            ✅ Konfirmasi
                                         </button>
                                     </form>
+
+                                {{-- ✅ SUDAH DIPROSES / BELUM DIAJUKAN --}}
                                 @else
                                     <div class="flex items-center justify-end text-gray-400 gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
@@ -146,6 +167,19 @@
             icon: 'success',
             title: 'Berhasil!',
             text: "{{ session('success') }}",
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: "{{ session('error') }}",
             toast: true,
             position: 'top-end',
             showConfirmButton: false,

@@ -69,6 +69,7 @@
             {{-- MAIN CONTENT AREA --}}
             <div class="py-10">
                 @yield('content')
+                
             </div>
 
         </main>

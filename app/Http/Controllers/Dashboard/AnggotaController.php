@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Anggota;
+use app\Models\kategori;
+use App\Models\Buku;
 use App\Models\User;
+use App\Models\Peminjaman;
+use App\Models\Keuangan;
 use Illuminate\Support\Facades\Storage;
 
 class AnggotaController extends Controller
@@ -158,4 +162,21 @@ public function editPetugas()
     return view('dashboard.petugas.profile.edit', compact('user'));
 }
 
+
+
+public function riwayat()
+{
+    $riwayat = \App\Models\Peminjaman::with('buku')
+        ->where('user_id', auth()->id())
+        ->latest()
+        ->get();
+         $query = Peminjaman::with(['user', 'buku', 'user.anggota', 'keuangan']);
+
+    // ... (kode filter tetap sama) ...
+
+    // 6. 🔥 AMBIL DATA DENGAN PAGINATION
+    $peminjaman = $query->latest()->paginate(10);
+
+    return view('dashboard.anggota.riwayat', compact('riwayat'));
+}
 }

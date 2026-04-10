@@ -38,29 +38,34 @@
 
             <div class="flex gap-2">
 
-    {{-- BELUM BAYAR --}}
-    @if($item->status == 'denda')
+   {{-- AKSI --}}
+<div class="flex gap-2">
+
+    {{-- 💰 BELUM AJUKAN BAYAR --}}
+    @if($item->status == 'denda' && !$item->is_paid)
     <form action="{{ route('pinjam.bayar.denda', $item->id) }}" method="POST">
         @csrf
-        <button class="bg-red-500 text-white px-3 py-1 rounded text-xs">
-            Bayar
+        <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs transition">
+            💰 Ajukan Bayar
         </button>
     </form>
     @endif
 
-    {{-- MENUNGGU ACC --}}
-    @if($item->status == 'dikembalikan' && !$item->acc_kembali)
-        <span class="bg-yellow-500 text-white px-3 py-1 rounded text-xs">
-            Menunggu ACC
+    {{-- ⏳ MENUNGGU KONFIRMASI PETUGAS --}}
+    @if($item->status == 'denda' && $item->is_paid)
+        <span class="bg-amber-500 text-white px-3 py-1 rounded text-xs">
+            ⏳ Menunggu ACC Petugas
         </span>
     @endif
 
-    {{-- SUDAH ACC --}}
-    @if($item->status == 'dikembalikan' && $item->acc_kembali)
+    {{-- ✅ SUDAH LUNAS --}}
+    @if($item->is_paid && $item->status != 'denda')
         <span class="bg-green-500 text-white px-3 py-1 rounded text-xs">
-            ✔ Selesai
+            ✅ Lunas
         </span>
     @endif
+
+</div>
 
 </div>
 

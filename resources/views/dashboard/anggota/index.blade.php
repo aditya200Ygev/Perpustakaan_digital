@@ -23,7 +23,7 @@
                     <a href="{{ route('anggota.denda') }}" class="px-4 py-2 text-gray-500 hover:text-emerald-600 rounded-xl text-xs font-bold uppercase tracking-widest transition hover:bg-emerald-50">
                         💰 Denda
                     </a>
-                    <a href="#" class="px-4 py-2 text-gray-500 hover:text-emerald-600 rounded-xl text-xs font-bold uppercase tracking-widest transition hover:bg-emerald-50">
+                    <a href="{{ route('anggota.riwayat') }}" class="px-4 py-2 text-gray-500 hover:text-emerald-600 rounded-xl text-xs font-bold uppercase tracking-widest transition hover:bg-emerald-50">
                         🕘 Riwayat
                     </a>
                 </div>

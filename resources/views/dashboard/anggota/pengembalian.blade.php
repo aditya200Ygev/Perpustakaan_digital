@@ -36,7 +36,8 @@
             </div>
         @endif
 
-        @forelse($data as $item)
+        {{-- ✅ FILTER VIEW: Hanya proses item dengan status yang diinginkan --}}
+        @forelse($data->whereIn('status', ['dipinjam', 'pengembalian_diajukan']) as $item)
         <div class="flex items-center justify-between border-b py-4">
 
             {{-- INFO --}}
@@ -47,68 +48,42 @@
                 <div>
                     <h4 class="font-semibold">{{ $item->buku->judul }}</h4>
                     <p class="text-sm text-gray-500">
-                        Batas: {{ $item->tgl_kembali }}
+                        Batas: {{ \Carbon\Carbon::parse($item->tgl_kembali)->format('d M Y') }}
                     </p>
-
-                    @if($item->status == 'denda')
-                        <span class="text-xs bg-red-500 text-white px-2 py-1 rounded">
-                            Terlambat
-                        </span>
-                    @endif
                 </div>
             </div>
 
             {{-- AKSI --}}
-            <div>
-{{-- AKSI --}}
-<div>
+            <div class="flex gap-2 items-center">
 
-    <div>
+                {{-- ✅ AJUKAN KEMBALI (Hanya jika dipinjam) --}}
+                @if($item->status == 'dipinjam')
+                    <form action="{{ route('pinjam.ajukan.kembali', $item->id) }}"
+                          method="POST"
+                          onsubmit="return confirm('Ajukan pengembalian buku ini?')"
+                          class="inline">
+                        @csrf
+                        <button type="submit"
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs transition">
+                            📤 Ajukan
+                        </button>
+                    </form>
+                @endif
 
-    {{-- ✅ AJUKAN KEMBALI --}}
-    @if($item->status == 'dipinjam')
-    <form action="{{ route('pinjam.ajukan.kembali', $item->id) }}" method="POST">
-        @csrf
-        <button class="bg-blue-500 text-white px-3 py-1 rounded text-xs">
-            Ajukan Kembali
-        </button>
-    </form>
-    @endif
-
-    {{-- 💰 DENDA --}}
-    @if($item->status == 'denda')
-    <a href="{{ route('anggota.denda') }}"
-       class="bg-red-500 text-white px-3 py-1 rounded text-xs">
-        Bayar Denda
-    </a>
-    @endif
-
-    {{-- ⏳ MENUNGGU ACC --}}
-    @if($item->status == 'dikembalikan')
-        <span class="bg-yellow-500 text-white px-3 py-1 rounded text-xs">
-            Menunggu ACC
-        </span>
-    @endif
-
-</div>
-</div>
-                @if($item->status == 'dikembalikan')
-
-<form action="{{ route('pinjam.kembali', $item->id) }}" method="POST"
-      onsubmit="return confirm('ACC pengembalian buku?')">
-    @csrf
-    <button class="bg-green-600 text-white px-3 py-1 rounded text-xs">
-        ACC Kembali
-    </button>
-</form>
-
-@endif
+                {{-- ⏳ MENUNGGU ACC --}}
+                @if($item->status == 'pengembalian_diajukan')
+                    <span class="bg-yellow-500 text-white px-3 py-1 rounded text-xs">
+                        ⏳ Menunggu ACC
+                    </span>
+                @endif
 
             </div>
 
         </div>
         @empty
-            <p class="text-gray-500 text-sm">Tidak ada buku untuk dikembalikan</p>
+            <p class="text-gray-500 text-sm text-center py-8">
+                Tidak ada buku untuk dikembalikan
+            </p>
         @endforelse
 
     </div>

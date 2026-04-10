@@ -133,7 +133,7 @@ Route::post('/pinjam/{id}/tolak', [PeminjamanController::class, 'tolak'])
     ->name('anggota.pengembalian');
 
 Route::post('/pinjam/ajukan-kembali/{id}', [PeminjamanController::class, 'ajukanKembali'])
-    ->name('pinjam.ajukan.kembali');
+     ->name('pinjam.ajukan.kembali');
 Route::post('/pinjam/acc-kembali/{id}', [PeminjamanController::class, 'accKembali'])
     ->name('pinjam.acc.kembali');
 Route::get('/anggota/denda', [DashboardController::class, 'denda'])
@@ -201,3 +201,4 @@ Route::middleware(['auth', 'role:kep_perpustakaan'])->prefix('kep_perpustakaan')
     // Halaman Laporan Umum (dengan filter)
     Route::get('/laporan-umum', [DashboardController::class, 'laporanKepala'])->name('kepala.laporan');
 });
+Route::get('/riwayat', [AnggotaController::class, 'riwayat'])->name('anggota.riwayat');

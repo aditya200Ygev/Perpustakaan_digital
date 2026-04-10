@@ -103,7 +103,7 @@
                         <td class="px-6 py-4 text-center">
                             @php $stok = $item->peminjaman?->buku?->stok ?? 0; @endphp
                             <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $stok <= 2 ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600' }}">
-                                {{ $stok }} Eks
+                                {{ $stok }} buku
                             </span>
                         </td>
 
