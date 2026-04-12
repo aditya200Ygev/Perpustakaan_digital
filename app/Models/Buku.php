@@ -3,7 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Buku extends Model
 {
    protected $fillable = [
@@ -21,4 +22,8 @@ public function kategori()
 {
     return $this->belongsTo(Kategori::class);
 }
+  public function peminjaman(): HasMany
+    {
+        return $this->hasMany(Peminjaman::class, 'buku_id');
+    }
 }

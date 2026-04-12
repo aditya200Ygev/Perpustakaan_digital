@@ -71,7 +71,7 @@
         <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4 no-print">
             <div>
                 <h1 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
-                    📊 Laporan <span class="text-blue-600">Perpustakaan</span>
+                    📊 LAPORAN <span class="text-blue-600">PERPUSTAKAAN</span>
                 </h1>
                 <p class="text-sm text-gray-500 mt-1">
                     Periode:
@@ -165,17 +165,16 @@
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 ml-1">📋 Status</label>
                         <select name="status" class="w-full border border-gray-200 px-4 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-                            <option value="">✨ Semua Status</option>
+                            <option value=""> Status</option>
 
                             <optgroup label="📖 Peminjaman Aktif">
                                 <option value="diajukan" {{ request('status')=='diajukan'?'selected':'' }}>🔔 Diajukan</option>
                                 <option value="dipinjam" {{ request('status')=='dipinjam'?'selected':'' }}>📖 Sedang Dipinjam</option>
                             </optgroup>
 
-                            <optgroup label="✅ Selesai">
-                                <option value="selesai" {{ request('status')=='selesai'?'selected':'' }}>✅ Selesai (Tanpa Denda)</option>
-                                <option value="selesai_denda" {{ request('status')=='selesai_denda'?'selected':'' }}>✅ Selesai + Pernah Denda</option>
-                            </optgroup>
+
+                                <option value="selesai" {{ request('status')=='selesai'?'selected':'' }}>✅ Selesai</option>
+
 
                             {{-- ✅ Filter Denda: SEMUA + Detail --}}
                             <optgroup label="⚠️ Denda">
@@ -191,14 +190,7 @@
                             </optgroup>
                         </select>
                     </div>
-                    <div class="md:col-span-2 flex items-center gap-3">
-                        <input type="checkbox" name="hanya_denda" value="1" id="hanya_denda"
-                               {{ request('hanya_denda') ? 'checked' : '' }}
-                               class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        <label for="hanya_denda" class="text-sm font-medium text-gray-700 cursor-pointer select-none">
-                            🔰 Hanya tampilkan yang ada denda
-                        </label>
-                    </div>
+
                     <div class="flex gap-2">
                         <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-100">
                             🔍 Filter

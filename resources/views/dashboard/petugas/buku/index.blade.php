@@ -6,10 +6,10 @@
 <div class="p-6 bg-gray-50 min-h-screen font-sans">
     <div class="max-w-7xl mx-auto">
 
-        {{-- HEADER SECTION --}}
+        {{-- ================= HEADER SECTION ================= --}}
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
             <div>
-                <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Katalog Buku</h1>
+                 <h1 class="text-2xl font-bold">KATALOG <span class="text-blue-600">BUKU</span></h1>
                 <p class="text-sm text-gray-500">Kelola koleksi buku perpustakaan Anda di sini.</p>
             </div>
 
@@ -22,7 +22,7 @@
             </a>
         </div>
 
-        {{-- FILTER & SEARCH SECTION --}}
+        {{-- ================= FILTER & SEARCH SECTION ================= --}}
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
             <form action="{{ route('petugas.buku') }}" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-4">
 
@@ -72,7 +72,7 @@
             </form>
         </div>
 
-        {{-- DATA TABLE SECTION --}}
+        {{-- ================= DATA TABLE SECTION ================= --}}
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -89,7 +89,17 @@
 
                     <tbody class="divide-y divide-gray-100">
                         @forelse($bukus as $index => $buku)
-                        <tr class="hover:bg-gray-50/80 transition-colors">
+                        @php
+                            // 🔍 CEK: Apakah buku masih ada peminjaman aktif?
+                            $hasActiveLoan = $buku->peminjaman()
+                                ->whereIn('status', ['diajukan', 'dipinjam', 'denda', 'pengembalian_diajukan'])
+                                ->exists();
+
+                            $activeLoanCount = $buku->peminjaman()
+                                ->whereIn('status', ['diajukan', 'dipinjam', 'denda', 'pengembalian_diajukan'])
+                                ->count();
+                        @endphp
+                        <tr class="hover:bg-gray-50/80 transition-colors {{ $hasActiveLoan ? 'bg-amber-50/30' : '' }}">
                             <td class="px-6 py-4 text-center text-gray-400 text-xs font-medium">
                                 {{ $bukus->firstItem() + $index }}
                             </td>
@@ -111,6 +121,16 @@
                                     <div class="flex flex-col max-w-xs">
                                         <span class="text-sm font-bold text-gray-800 leading-tight mb-1">{{ $buku->judul }}</span>
                                         <span class="text-[10px] text-gray-400 line-clamp-2 italic">{{ Str::limit($buku->deskripsi, 60) }}</span>
+
+                                        {{-- ✅ BADGE: Tampilkan jika ada peminjaman aktif --}}
+                                        @if($hasActiveLoan)
+                                            <span class="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-100 text-amber-700 border border-amber-200 w-fit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                {{ $activeLoanCount }} Dipinjam
+                                            </span>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
@@ -148,6 +168,7 @@
 
                             <td class="px-6 py-4 text-right">
                                 <div class="flex justify-end gap-2">
+                                    {{-- ✅ EDIT: Selalu bisa --}}
                                     <a href="{{ route('petugas.buku.edit', $buku->id) }}"
                                        class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100 shadow-sm" title="Edit Buku">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -155,18 +176,33 @@
                                         </svg>
                                     </a>
 
-                                    <form action="{{ route('petugas.buku.delete', $buku->id) }}"
-                                          method="POST"
-                                          class="inline-block"
-                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus buku ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-100 shadow-sm" title="Hapus Buku">
+                                    {{-- ✅ DELETE: Hanya bisa jika TIDAK ada peminjaman aktif --}}
+                                    @if($hasActiveLoan)
+                                        {{-- Tombol disabled dengan tooltip --}}
+                                        <button disabled
+                                                class="p-2 text-gray-300 cursor-not-allowed"
+                                                title="Tidak dapat dihapus: Masih ada {{ $activeLoanCount }} peminjaman aktif">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
                                         </button>
-                                    </form>
+                                    @else
+                                        {{-- Tombol delete aktif dengan konfirmasi --}}
+                                        <form action="{{ route('petugas.buku.destroy', $buku->id) }}"
+                                              method="POST"
+                                              class="inline-block"
+                                              onsubmit="return confirm('Yakin ingin menghapus buku ini? Data tidak dapat dikembalikan.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-100 shadow-sm"
+                                                    title="Hapus Buku">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -190,7 +226,7 @@
             </div>
         </div>
 
-        {{-- PAGINATION --}}
+        {{-- ================= PAGINATION ================= --}}
         <div class="mt-8 flex justify-center">
             {{ $bukus->appends(request()->query())->links() }}
         </div>
@@ -207,6 +243,21 @@
         title: 'Berhasil!',
         text: "{{ session('success') }}",
         timer: 2000,
+        showConfirmButton: false,
+        borderRadius: '20px'
+    });
+</script>
+@endif
+
+{{-- SweetAlert untuk Error --}}
+@if(session('error'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: "{{ session('error') }}",
+        timer: 3000,
         showConfirmButton: false,
         borderRadius: '20px'
     });

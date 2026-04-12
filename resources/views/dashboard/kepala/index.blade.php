@@ -8,7 +8,9 @@
 
         {{-- WELCOME HEADER --}}
         <div class="mb-8">
-            <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Selamat Datang, {{ $user->name }}!</h1>
+              <h1 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
+                    SELAMAT DATANG, <span class="text-blue-600">{{ $user->name }}</span>
+                </h1>
             <p class="text-sm text-gray-500">Laporan ringkas kondisi perpustakaan hari ini.</p>
         </div>
 

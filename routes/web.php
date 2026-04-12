@@ -9,6 +9,9 @@ use App\Http\Controllers\Dashboard\BukuController;
 use App\Http\Controllers\BukuPublicController;
  use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\Dashboard\Petugas\ContactController as PetugasContactController;
+
 /*
 |--------------------------------------------------------------------------
 | PUBLIC
@@ -89,7 +92,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/buku', [BukuController::class, 'store'])->name('petugas.buku.store');
         Route::get('/buku/{id}/edit', [BukuController::class, 'edit'])->name('petugas.buku.edit');
         Route::put('/buku/{id}', [BukuController::class, 'update'])->name('petugas.buku.update');
-        Route::delete('/buku/{id}', [BukuController::class, 'destroy'])->name('petugas.buku.delete');
+        Route::delete('/buku/{id}', [BukuController::class, 'destroy'])->name('petugas.buku.destroy'); // ✅ FIX: nama route 'petugas.buku.destroy'
+                Route::delete('/{id}', [BukuController::class, 'destroy'])->name('destroy'); // ✅ FIX: nama 'destroy'
     });
 });
 
@@ -202,3 +206,60 @@ Route::middleware(['auth', 'role:kep_perpustakaan'])->prefix('kep_perpustakaan')
     Route::get('/laporan-umum', [DashboardController::class, 'laporanKepala'])->name('kepala.laporan');
 });
 Route::get('/riwayat', [AnggotaController::class, 'riwayat'])->name('anggota.riwayat');
+
+
+// Public: Form kontak
+Route::post('/kontak/kirim', [ContactController::class, 'store'])->name('contact.store');
+
+// Dashboard Petugas (pastikan ada middleware auth/role)
+Route::prefix('dashboard/petugas')->middleware(['auth', 'role:petugas'])->group(function () {
+    Route::get('/contact', [PetugasContactController::class, 'index'])->name('petugas.contact.index');
+    Route::get('/contact/{contact}', [PetugasContactController::class, 'show'])->name('petugas.contact.show');
+    Route::delete('/contact/{contact}', [PetugasContactController::class, 'destroy'])->name('petugas.contact.destroy');
+    Route::delete('/contact/bulk', [PetugasContactController::class, 'destroyAll'])->name('petugas.contact.destroyAll');
+});
+
+// ═══════════════════════════════════════
+//  PROFILE & PASSWORD (Semua Role)
+// ═══════════════════════════════════════
+
+Route::middleware(['auth'])->group(function () {
+
+    // Anggota
+    Route::prefix('anggota')->name('anggota.')->group(function () {
+        Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::get('password', [ProfileController::class, 'editPassword'])->name('password.edit');
+        Route::put('password', [ProfileController::class, 'updatePassword'])->name('password.update');
+    });
+
+   // Petugas
+    Route::prefix('petugas')->name('petugas.')->group(function () {
+        Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::get('password', [ProfileController::class, 'editPassword'])->name('password.edit');
+        Route::put('password', [ProfileController::class, 'updatePassword'])->name('password.update');
+    });
+
+    // Kepala Perpustakaan
+    Route::prefix('kepala')->name('kepala.')->group(function () {
+        Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::get('password', [ProfileController::class, 'editPassword'])->name('password.edit');
+        Route::put('password', [ProfileController::class, 'updatePassword'])->name('password.update');
+    });
+});
+// ═══════════════════════════════════════
+//  KEPALA PERPUSTAKAAN - RIWAYAT ANGGOTA
+// ═══════════════════════════════════════
+
+Route::middleware(['auth'])->prefix('kepala')->name('kepala.')->group(function () {
+
+    // ✅ Riwayat semua anggota (dengan filter)
+    Route::get('riwayat-anggota', [AnggotaController::class, 'riwayatKepala'])
+        ->name('riwayat.anggota');
+
+    // ✅ Riwayat per anggota spesifik (via user_id)
+    Route::get('riwayat-anggota/{user_id}', [AnggotaController::class, 'riwayatPerAnggota'])
+        ->name('riwayat.anggota.detail');
+});

@@ -38,22 +38,40 @@ class PeminjamanController extends Controller
     }
 
     // 4. 🔥 FILTER STATUS (DIPERBAIKI)
-    if ($request->filled('status')) {
-        if ($request->status == 'denda') {
-            // Tampilkan:
-            // - Status 'denda' (aktif, belum lunas)
-            // - ATAU status 'selesai' yang pernah kena denda (historis)
+if ($request->filled('status')) {
+    switch ($request->status) {
+        case 'denda':
+            // ✅ Tampilkan: denda aktif + historis (selesai + is_denda=true)
             $query->where(function($q) {
                 $q->where('status', 'denda')  // Denda aktif
                   ->orWhere(function($sub) {
                       $sub->where('status', 'selesai')
-                          ->where('is_denda', true);  // Historis: pernah telat
+                          ->where('is_denda', true);  // Historis
                   });
             });
-        } else {
+            break;
+
+        case 'selesai':
+            // ✅ FIX: Selesai HANYA yang TANPA riwayat denda
+            $query->where('status', 'selesai')
+                  ->where(function($q) {
+                      $q->where('is_denda', false)
+                        ->orWhereNull('is_denda');
+                  });
+            break;
+
+        case 'selesai_denda':
+            // ✅ Selesai DENGAN riwayat denda (opsional, untuk filter terpisah)
+            $query->where('status', 'selesai')
+                  ->where('is_denda', true);
+            break;
+
+        default:
+            // Filter status biasa
             $query->where('status', $request->status);
-        }
+            break;
     }
+}
 
     // 5. 🔥 AUTO DENDA (Hanya ubah status, jangan hitung denda di sini)
     // Ini hanya mengubah status 'dipinjam' yang lewat tanggal jadi 'denda'
@@ -423,11 +441,26 @@ public function accDenda($id)
         });
     }
 
-    // 🔥 FILTER STATUS LENGKAP (FIX: Tambahkan filter denda aktif + historis)
+    // 🔥 FILTER STATUS LENGKAP
     if ($request->filled('status')) {
         switch ($request->status) {
+            case 'selesai':
+                // ✅ FIX: Selesai HANYA yang TANPA riwayat denda
+                $query->where('status', 'selesai')
+                      ->where(function($q) {
+                          $q->where('is_denda', false)
+                            ->orWhereNull('is_denda');
+                      });
+                break;
+
+            case 'selesai_denda':
+                // ✅ Selesai DENGAN riwayat denda
+                $query->where('status', 'selesai')
+                      ->where('is_denda', true);
+                break;
+
             case 'denda':
-                // ✅ FIX UTAMA: Tampilkan SEMUA denda (aktif + historis)
+                // ✅ Semua denda (aktif + historis)
                 $query->where(function($q) {
                     $q->where('status', 'denda')  // Denda aktif (belum lunas)
                       ->orWhere(function($sub) {

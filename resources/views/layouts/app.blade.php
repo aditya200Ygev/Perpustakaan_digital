@@ -16,6 +16,9 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
+         html { scroll-behavior: smooth; }
+    /* Prevent layout shift when mobile menu opens */
+    body.menu-open { overflow: hidden; }
         /* Memastikan footer tetap di bawah jika konten sedikit */
         .main-wrapper {
             display: flex;
@@ -69,7 +72,7 @@
             {{-- MAIN CONTENT AREA --}}
             <div class="py-10">
                 @yield('content')
-                
+
             </div>
 
         </main>

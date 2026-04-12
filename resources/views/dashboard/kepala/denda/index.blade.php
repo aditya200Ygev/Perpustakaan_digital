@@ -8,7 +8,9 @@
 
         {{-- HEADER SECTION --}}
         <div class="mb-8">
-            <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Laporan Rekapitulasi Denda</h1>
+            <h1 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
+                    📊 LAPORAN <span class="text-blue-600">DENDA</span>
+                </h1>
             <p class="text-sm text-gray-500">Monitoring penerimaan dana denda keterlambatan pengembalian buku.</p>
         </div>
 

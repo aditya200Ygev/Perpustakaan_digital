@@ -75,7 +75,7 @@
         {{-- ================= HEADER DASHBOARD ================= --}}
         <div class="mb-6 flex justify-between items-center no-print">
             <div>
-                <h1 class="text-2xl font-bold">Laporan <span class="text-blue-600">Perpustakaan</span></h1>
+                <h1 class="text-2xl font-bold">LAPORAN <span class="text-blue-600">PERPUSTAKAAN</span></h1>
                 <p class="text-gray-500 text-sm">Ekspor data peminjaman dan keuangan.</p>
             </div>
             <button onclick="window.print()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all flex items-center gap-2">
@@ -123,8 +123,9 @@
                             <option value="dipinjam" {{ request('status')=='dipinjam'?'selected':'' }}>📖 Dipinjam</option>
                         </optgroup>
                         <optgroup label="✅ Selesai">
-                            <option value="selesai" {{ request('status')=='selesai'?'selected':'' }}>✅ Tanpa Denda</option>
-                            <option value="selesai_denda" {{ request('status')=='selesai_denda'?'selected':'' }}>✅ Pernah Denda</option>
+                            {{-- ✅ FIX: Selesai hanya berdasarkan status saja --}}
+                            <option value="selesai" {{ request('status')=='selesai'?'selected':'' }}>✅ Selesai</option>
+                            <option value="selesai_denda" {{ request('status')=='selesai_denda'?'selected':'' }}>✅ Selesai + Pernah Denda</option>
                         </optgroup>
                         {{-- ✅ Filter Denda Lengkap --}}
                         <optgroup label="⚠️ Denda">
@@ -182,23 +183,31 @@
                                 @if($hariTelat > 0)<div class="text-[10px] text-red-600 font-semibold mt-1">⚠️ Telat {{ $hariTelat }} hari</div>@endif
                             </td>
 
-                            {{-- ✅ KOLOM STATUS: Handle SEMUA kondisi denda --}}
+                            {{-- ✅ KOLOM STATUS: Handle SEMUA kondisi dengan benar --}}
                             <td class="p-4 text-center">
-                                @if($row->status == 'denda' || ($row->status == 'selesai' && $row->is_denda))
-                                    {{-- 🎯 Tampilkan badge DENDA untuk aktif + historis --}}
+                                @if($row->status == 'denda')
+                                    {{-- ⚠️ DENDA AKTIF (belum lunas) --}}
                                     <div class="flex flex-col items-center gap-1">
                                         <span class="badge badge-red">⚠️ Denda</span>
                                         @if($isLunas)
                                             <span class="badge badge-green text-[10px]">✅ Lunas</span>
                                         @else
-                                            <span class="badge badge-red text-[10px]">❌ Belum</span>
+                                            <span class="badge badge-red text-[10px]">❌ BELUM LUNAS</span>
                                         @endif
                                     </div>
+                                @elseif($row->status == 'selesai' && ($row->is_denda ?? false))
+                                    {{-- ✅ SELESAI + PERNAH DENDA (historis) --}}
+                                    <div class="flex flex-col items-center gap-1">
+                                        <span class="badge badge-green">✅ Selesai</span>
+                                        <span class="badge badge-gray text-[10px]">lUNAS</span>
+                                    </div>
                                 @elseif($row->status == 'selesai')
+                                    {{-- ✅ SELESAI BIASA (tanpa filter is_denda) --}}
                                     <span class="badge badge-green">✅ Selesai</span>
-                                    @if($hariTelat > 0)<div class="text-[10px] text-gray-500 mt-1">Pernah Telat</div>@endif
                                 @elseif($row->status == 'dipinjam')
                                     <span class="badge badge-amber">📖 Dipinjam</span>
+                                @elseif($row->status == 'diajukan')
+                                    <span class="badge badge-blue">🔔 Diajukan</span>
                                 @else
                                     <span class="badge badge-gray">{{ ucfirst($row->status) }}</span>
                                 @endif
@@ -207,18 +216,24 @@
                             {{-- 💰 KOLOM DENDA --}}
                             <td class="p-4 text-right">
                                 @if($sudahDibayar && $dendaReal !== null && $dendaReal > 0)
+                                    {{-- ✅ SUDAH DIBAYAR: Tampilkan nominal REAL --}}
                                     <div class="denda-paid">
                                         <div class="font-bold text-sm">Rp {{ number_format($dendaReal, 0, ',', '.') }}</div>
                                         <div class="text-[10px] text-green-600">✓ Sudah Dibayar</div>
                                     </div>
-                                @elseif(($row->status == 'denda' || ($row->status == 'selesai' && $row->is_denda)) && !$isLunas)
+                                @elseif($row->status == 'denda' && !$isLunas)
+                                    {{-- ❌ DENDA BELUM DIBAYAR: Tampilkan estimasi --}}
                                     <div class="denda-unpaid">
                                         <div class="font-bold text-sm">Rp {{ number_format($estimasiDenda, 0, ',', '.') }}</div>
                                         <div class="text-[10px] text-red-600">✗ Belum Dibayar</div>
                                     </div>
-                                @elseif($row->status == 'selesai' && $hariTelat > 0 && $isLunas)
-                                    <span class="denda-historic font-semibold text-sm">Rp {{ number_format($dendaReal ?? $estimasiDenda, 0, ',', '.') }}</span>
+                                @elseif($row->status == 'selesai' && ($row->is_denda ?? false))
+                                    {{-- 📋 SELESAI + PERNAH DENDA: Tampilkan histori --}}
+                                    <span class="denda-historic font-semibold text-sm">
+                                        Rp {{ number_format($dendaReal ?? $estimasiDenda, 0, ',', '.') }}
+                                    </span>
                                 @else
+                                    {{-- ✅ TIDAK ADA DENDA --}}
                                     <span class="text-gray-300 text-sm">—</span>
                                 @endif
                             </td>

@@ -9,7 +9,9 @@
         {{-- HEADER SECTION --}}
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4 border-b border-gray-200 pb-6">
             <div>
-                <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Katalog Buku</h1>
+                 <h1 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
+                    KATALOG <span class="text-blue-600">BUKU</span>
+                </h1>
                 <p class="text-sm text-gray-500">Memantau seluruh koleksi buku perpustakaan.</p>
             </div>
 

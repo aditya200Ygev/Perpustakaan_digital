@@ -10,20 +10,21 @@ use Illuminate\Support\Facades\Storage;
 
 class BukuController extends Controller
 {
-   public function index(Request $request) // Tambahkan Request $request
+  public function index(Request $request)
 {
-    // 1. Ambil semua kategori untuk dropdown filter
     $kategoris = Kategori::all();
 
-    // 2. Mulai Query Buku
-    $query = Buku::with('kategori');
+    // ✅ FIX: Tambahkan with('peminjaman') untuk eager loading
+    $query = Buku::with(['kategori', 'peminjaman' => function($q) {
+        $q->whereIn('status', ['diajukan', 'dipinjam', 'denda', 'pengembalian_diajukan']);
+    }]);
 
-    // 3. Logika Filter Kategori (Jika dipilih)
+    // Filter Kategori
     if ($request->has('kategori_id') && $request->kategori_id != '') {
         $query->where('kategori_id', $request->kategori_id);
     }
 
-    // 4. Logika Pencarian (Jika mengetik di kolom cari)
+    // Filter Search
     if ($request->has('search') && $request->search != '') {
         $query->where(function($q) use ($request) {
             $q->where('judul', 'like', '%' . $request->search . '%')
@@ -31,10 +32,8 @@ class BukuController extends Controller
         });
     }
 
-    // 5. Eksekusi dengan Paginate dan kirim SEMUA variabel
     $bukus = $query->latest()->paginate(10);
 
-    // ✅ Tambahkan 'kategoris' di dalam compact()
     return view('dashboard.petugas.buku.index', compact('bukus', 'kategoris'));
 }
 
@@ -111,15 +110,26 @@ class BukuController extends Controller
     }
 
     public function destroy($id)
-    {
-        $buku = Buku::findOrFail($id);
+{
+    $buku = Buku::with('peminjaman')->findOrFail($id);
 
-        if ($buku->cover) {
-            Storage::delete('public/'.$buku->cover);
-        }
+    // 🔍 CEK: Apakah buku masih ada peminjaman aktif?
+    $peminjamanAktif = $buku->peminjaman()
+        ->whereIn('status', ['diajukan', 'dipinjam', 'denda', 'pengembalian_diajukan'])
+        ->exists();
 
-        $buku->delete();
-
-        return back()->with('success', 'Buku berhasil dihapus');
+    if ($peminjamanAktif) {
+        return back()->with('error', '❌ Buku tidak dapat dihapus karena masih memiliki peminjaman aktif.');
     }
+
+    // ✅ Hapus cover jika ada
+    if ($buku->cover && Storage::disk('public')->exists($buku->cover)) {
+        Storage::disk('public')->delete($buku->cover);
+    }
+
+    // ✅ Hapus buku
+    $buku->delete();
+
+    return back()->with('success', '✅ Buku berhasil dihapus.');
+}
 }

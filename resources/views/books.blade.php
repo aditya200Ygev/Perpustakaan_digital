@@ -99,52 +99,65 @@
         <div class="h-[1px] flex-1 bg-gray-100"></div>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-8 gap-y-12">
+    {{-- ✅ GRID: items-stretch untuk tinggi sama --}}
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-8 gap-y-12 items-stretch">
         @forelse($bukus as $buku)
-        <div class="group flex flex-col items-center text-center">
 
-            {{-- BENTUK BUKU 3D --}}
-            <div class="relative w-full aspect-[3/4] mb-5 perspective-1000">
+        {{-- ✅ CARD: h-full untuk mengisi grid --}}
+        <div class="group flex flex-col h-full">
+
+            {{-- ✅ CONTAINER BUKU: Fixed height dengan aspect ratio konsisten --}}
+            <div class="relative w-full mb-4 flex-shrink-0" style="aspect-ratio: 3/4;">
+
                 {{-- Shadow Bawah --}}
                 <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 w-[85%] h-4 bg-blue-900/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                {{-- Container Buku --}}
-                <div class="w-full h-full relative transform-gpu transition-all duration-500 ease-out group-hover:rotate-y-[-20deg] group-hover:scale-105">
+                {{-- Wrapper 3D dengan tinggi penuh --}}
+                <div class="relative w-full h-full perspective-1000">
+                    <div class="absolute inset-0 transform-gpu transition-all duration-500 ease-out group-hover:rotate-y-[-20deg] group-hover:scale-105">
 
-                    {{-- Tepi Buku (Spine Effect) --}}
-                    <div class="absolute inset-y-0 left-0 w-[6px] bg-black/40 z-20 rounded-l-sm backdrop-blur-[1px]"></div>
+                        {{-- Tepi Buku (Spine) --}}
+                        <div class="absolute inset-y-0 left-0 w-[6px] bg-black/40 z-20 rounded-l-sm"></div>
 
-                    {{-- Cover --}}
-                    <div class="w-full h-full rounded-r-lg rounded-l-sm overflow-hidden shadow-[5px_5px_15px_rgba(0,0,0,0.15)] border-l border-white/20 ring-1 ring-black/5 group-hover:ring-blue-500/30 transition-all">
-                        <img src="{{ $buku->cover ? asset('storage/'.$buku->cover) : '/images/default.jpg' }}"
-                             class="w-full h-full object-cover">
-                        {{-- Overlay Hover Effect --}}
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        {{-- Cover Buku --}}
+                        <div class="w-full h-full rounded-r-lg rounded-l-sm overflow-hidden shadow-[5px_5px_15px_rgba(0,0,0,0.15)] border-l border-white/20 ring-1 ring-black/5 group-hover:ring-blue-500/30 transition-all bg-gray-100">
+                            <img src="{{ $buku->cover ? asset('storage/'.$buku->cover) : '/images/default.jpg' }}"
+                                 class="w-full h-full object-cover"
+                                 alt="{{ $buku->judul }}">
+
+                            {{-- Overlay Hover --}}
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </div>
+
+                        {{-- Efek Kertas --}}
+                        <div class="absolute inset-y-0 right-0 w-[4px] bg-white/30 z-10 group-hover:bg-blue-400/50 transition-colors"></div>
                     </div>
-
-                    {{-- Efek Tekstur Kertas di Samping --}}
-                    <div class="absolute inset-y-0 right-0 w-[4px] bg-white/30 z-10 group-hover:bg-blue-400/50 transition-colors"></div>
                 </div>
             </div>
 
-            {{-- INFORMASI BUKU --}}
-            <div class="space-y-1 w-full px-2">
-                <p class="text-xs font-bold text-black line-clamp-1 uppercase tracking-tight group-hover:text-blue-600 transition-colors">
+            {{-- ✅ INFO BUKU: flex-1 untuk mengisi sisa ruang --}}
+            <div class="flex flex-col flex-1 w-full px-2">
+
+                {{-- Judul --}}
+                <h4 class="text-xs font-bold text-black line-clamp-2 uppercase tracking-tight group-hover:text-blue-600 transition-colors mb-1 min-h-[2.5rem]">
                     {{ $buku->judul }}
-                </p>
-                <p class="text-[10px] text-gray-500 font-medium">
+                </h4>
+
+                {{-- Penulis --}}
+                <p class="text-[10px] text-gray-500 font-medium mb-2">
                     {{ $buku->penulis }}
                 </p>
 
-                <div class="flex items-center justify-center gap-2 mt-2">
+                {{-- Status --}}
+                <div class="flex items-center justify-center gap-2 mb-3">
                     <span class="w-1.5 h-1.5 rounded-full {{ $buku->stok > 0 ? 'bg-blue-600' : 'bg-gray-300' }}"></span>
                     <p class="text-[9px] font-black uppercase tracking-widest {{ $buku->stok > 0 ? 'text-blue-600' : 'text-gray-400' }}">
                         {{ $buku->stok > 0 ? 'Tersedia' : 'Kosong' }}
                     </p>
                 </div>
 
-                {{-- TOMBOL PINJAM MINIMALIS --}}
-                <div class="pt-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                {{-- Tombol --}}
+                <div class="mt-auto pt-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                     <a href="{{ Auth::check() ? route('pinjam.create', $buku->id) : route('login') }}"
                        class="inline-block w-full bg-black text-white text-[9px] font-bold py-2.5 rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-300 uppercase tracking-widest border border-black hover:border-blue-600 shadow-sm hover:shadow-blue-500/25">
                         Lihat Detail
@@ -176,11 +189,6 @@
     .perspective-1000 {
         perspective: 1000px;
     }
-    .rotate-y-\[-20deg\] {
-        transform: rotateY(-20deg);
-    }
-
-    {{-- Custom hover glow effect untuk tema biru --}}
     .group:hover .shadow-\[5px_5px_15px_rgba\(0\,0\,0\,0\.15\)\] {
         box-shadow: 5px 5px 25px rgba(37, 99, 235, 0.3);
     }

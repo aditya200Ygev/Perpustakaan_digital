@@ -8,7 +8,7 @@
 
         <div class="mb-8 flex justify-between items-end">
             <div>
-                <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Daftar Anggota Perpustakaan</h1>
+ <h1 class="text-2xl font-bold">DAFTAR <span class="text-blue-600">ANGGOTA</span></h1>
                 <p class="text-sm text-gray-500 font-medium mt-1">
                     Menampilkan seluruh siswa yang telah melakukan <span class="text-blue-600 font-bold text-xs uppercase tracking-wider">Registrasi Mandiri</span> ke dalam sistem.
                 </p>

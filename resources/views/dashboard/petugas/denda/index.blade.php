@@ -9,7 +9,7 @@
         {{-- HEADER SECTION --}}
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
             <div>
-                <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Manajemen Denda</h1>
+               <h1 class="text-2xl font-bold">MANAJEMEN <span class="text-blue-600">DENDA</span></h1>
                 <p class="text-sm text-gray-500">Konfirmasi pembayaran denda dari anggota perpustakaan.</p>
             </div>
 

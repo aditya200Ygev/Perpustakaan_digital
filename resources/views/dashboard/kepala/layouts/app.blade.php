@@ -45,8 +45,8 @@
                 </div>
             </div>
             <div class="flex flex-col">
-                <span class="text-xl font-extrabold text-white tracking-tight leading-none">E-LIBRARY</span>
-                <span class="text-[10px] text-blue-400 font-bold tracking-[0.2em] mt-1 uppercase">Management System</span>
+                <span class="text-xl font-extrabold text-white tracking-tight leading-none">KEPALA</span>
+                <span class="text-[10px] text-blue-400 font-bold tracking-[0.2em] mt-1 uppercase"> System</span>
             </div>
         </div>
     </div>

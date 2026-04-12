@@ -9,7 +9,9 @@
         {{-- HEADER SECTION --}}
         <div class="mb-8 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
-                <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Manajemen SDM Perpustakaan</h1>
+                  <h1 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
+                    MANAJEMEN <span class="text-blue-600">SDM</span>
+                </h1>
                 <p class="text-sm text-gray-500 font-medium">Monitoring data seluruh petugas operasional dan anggota aktif.</p>
             </div>
 
@@ -113,11 +115,16 @@
                                 </td>
                                 <td class="px-6 py-4 text-gray-500 text-xs">{{ $item->created_at->format('d/m/Y') }}</td>
                                 <td class="px-6 py-4 text-right">
-                                    <button class="text-gray-400 hover:text-blue-600 transition-colors">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                                        </svg>
-                                    </button>
+                                   {{-- Kolom Riwayat (ganti button dengan a tag) --}}
+<td class="px-6 py-4 text-right">
+    <a href="{{ route('kepala.riwayat.anggota', ['user_id' => $item->user_id]) }}"
+       class="inline-flex items-center gap-1 text-gray-400 hover:text-blue-600 transition-colors text-sm font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Riwayat
+    </a>
+</td>
                                 </td>
                             </tr>
                             @empty

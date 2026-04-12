@@ -9,7 +9,7 @@
         {{-- WELCOME HEADER & QUICK RELOAD --}}
         <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-6 rounded-3xl shadow-sm border border-gray-100 gap-4">
             <div>
-                <h1 class="text-3xl font-black text-gray-900 tracking-tighter">Selamat Datang, {{ auth()->user()->name }}! 👋</h1>
+                <h1 class="text-3xl font-black  tracking-tighter">Selamat Datang, <span class="text-blue-600">{{ auth()->user()->name }}! 👋</span></h1>
                 <p class="text-sm text-gray-500 font-medium mt-1">
                     Ringkasan aktivitas perpustakaan hari ini, <span class="text-indigo-600">{{ now()->translatedFormat('d F Y') }}</span>.
                 </p>
@@ -215,40 +215,7 @@
                 </div>
 
                 {{-- KONFIRMASI DENDA --}}
-                <div class="bg-indigo-900 p-7 rounded-3xl shadow-lg border border-indigo-950 text-white relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-                    <h2 class="text-xl font-bold tracking-tight mb-5 relative z-10">Denda Menunggu</h2>
-                    <div class="space-y-3 relative z-10">
-                        @php $hasDenda = false; @endphp
-                        @foreach($pendingDendaList ?? [] as $item)
-                            @if(($item->denda ?? 0) > 0)
-                            @php $hasDenda = true; @endphp
-                            <div class="flex items-center justify-between p-3 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/10">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-red-400 text-white flex items-center justify-center text-[10px] font-black">
-                                        !
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <span class="text-[11px] font-bold">{{ Str::limit($item->user->name ?? 'User', 12) }}</span>
-                                        <span class="text-[10px] text-red-200 font-bold tracking-wider">Rp {{ number_format($item->denda, 0, ',', '.') }}</span>
-                                    </div>
-                                </div>
-                                <a href="{{ route('petugas.denda.index') }}" class="p-2 bg-white/20 hover:bg-white hover:text-indigo-900 rounded-xl transition-all">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-                                </a>
-                            </div>
-                            @endif
-                        @endforeach
 
-                        @if(!$hasDenda)
-                            <p class="text-[11px] text-indigo-300 italic">Semua tagihan lunas.</p>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 {{-- SCRIPT --}}
 @push('scripts')
